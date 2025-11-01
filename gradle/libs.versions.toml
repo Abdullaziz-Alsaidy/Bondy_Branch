@@ -1,6 +1,6 @@
 [versions]
 firebaseBom = "34.2.0"
-hilt = "2.51"  # Add this line
+hilt = "2.57.2"  # Add this line
 agp = "8.11.2"
 kotlin = "2.2.10"
 coreKtx = "1.15.0"
