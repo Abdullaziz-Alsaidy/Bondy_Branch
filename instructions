@@ -1,0 +1,139 @@
+You already have access to the Android project Bondy Branch (com.bondy.branch).
+This app is part of a loyalty SaaS system for coffee shops and branches.
+
+Here’s the project idea and what to build:
+
+🏪 Bondy Branch App — Overview
+
+The app is used by branch staff (cashiers or baristas) to manage loyalty card transactions for customers.
+Each customer has a digital loyalty card with a cups count (e.g., 8 cups = 1 free reward).
+
+🎯 Goal
+
+Build the branch-side app that:
+
+Lets branch users log in (fake login, store token locally).
+
+Lets them scan a QR or manually enter a card number.
+
+Fetches and displays the customer’s loyalty card info (cups filled, goal, redeemed count).
+
+Allows SALE (add cups) and REDEEM (reset cups when goal reached).
+
+Shows today’s stats (total sales, redemptions) on a dashboard.
+
+Keeps a local transaction history (using Room or in-memory).
+
+Has a simple settings screen (environment switch + logout).
+
+🧩 Technical details
+
+Architecture: MVVM + Jetpack Compose + Hilt + Coroutines + Flow + Retrofit + Room
+
+Fake API (simulate remote calls through FakeRemoteDataSource):
+
+/login
+
+/getCard/{cardNumber}
+
+/processSale
+
+/processRedeem
+
+Use a NetworkResult sealed class (Success, Error, Loading)
+
+Use simple data models:
+
+data class LoyaltyCard(
+    val id: String,
+    val cupsFilled: Int,
+    val cupsGoal: Int,
+    val redeemedCount: Int,
+    val lastActivity: String
+)
+
+enum class TransactionType { SALE, REDEEM }
+
+@Serializable
+data class Transaction(
+    val id: Int,
+    val userId: Int,
+    val brandId: Int,
+    val branchId: Int? = null,
+    val cardId: Int,
+    val transactionType: TransactionType, // SALE or REDEEM
+    val source: TransactionSource,         // POS or APP_MANUAL
+    val integrationType: IntegrationType? = null, // foodics / marn if POS
+    val cupsCount: Int = 0,                // cups in this transaction
+    val cupsFilled: Int = 0,               // updated cups_filled after processing
+    val redeemedCount: Int = 0,            // updated redeemed cups
+    val rewardsEarned: Int = 0,            // number of rewards from this transaction
+    val carryOver: Int = 0,                // remaining cups after reward
+    val totalCupsGoal: Int = 0,            // cups_goal from Brand rule
+    val status: TransactionStatus = TransactionStatus.PROCESSED,
+    val createdAt: Date? = null,
+    val lastActivity: Date? = null,
+    val message: String? = null             // API message e.g. "Reward earned!"
+)
+
+
+@Serializable
+data class Brand(
+    val id: Int,
+    val name: String,
+    val logo: String,
+    val branches: List<Int> = emptyList(),
+    val subStatus: String? = null,
+    val subTier: String? = null,
+    val cardDesign: Map<String, Any>? = null, // JSON-like structure
+    val rule: Map<String, Any>? = null,       // JSON-like structure
+    val soldCups: Int = 0,
+    val redeemedCups: Int = 0,
+    val users: List<Int> = emptyList(),
+    val lastPayment: Date? = null,
+    val welcomingMessage: String? = null
+)
+
+@Serializable
+data class Branch(
+    val id: Int,
+    val location: String,
+    val brandId: Int,
+    val foodics: Boolean = false,
+    val marn: Boolean = false,
+    val manual: Boolean = false,
+    val soldCups: Int = 0,
+    val redeemedCups: Int = 0
+)
+
+Reward logic:
+
+SALE → add cups; if total >= goal → increment redeemedCount.
+
+REDEEM → reset cupsFilled to 0.
+
+🧭 How to proceed
+
+Start by generating a project plan (list the steps: data layer → use cases → UI screens).
+
+Then create the data models + repository layer (Retrofit interface, FakeRemoteDataSource, BondyRepository).
+
+Then move to the ViewModels and UI Composables (Login → Dashboard → Scan → Card Details → History → Settings).
+
+Keep each step self-contained — show which files you edit and full code for them.
+
+Use Compose Material3 and Navigation-Compose for screen navigation.
+
+Important:
+
+The API is fake for now; don’t name anything “Mock.”
+
+Keep code production-quality and concise.
+
+Use Kotlin DSL Gradle.
+
+The app already exists — do not recreate it, just add features step-by-step according to this plan.
+
+✅ Task 1 for you now:
+
+Create the development plan and folder/file roadmap for the Bondy Branch app based on the above description, then start implementing step 1.
