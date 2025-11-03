@@ -8,6 +8,8 @@ import androidx.lifecycle.viewModelScope
 import com.bondy.bondybranch.core.network.NetworkResult
 import com.bondy.bondybranch.data.model.BranchDailyStats
 import com.bondy.bondybranch.data.model.Transaction
+import com.bondy.bondybranch.data.model.TransactionSource
+import com.bondy.bondybranch.data.model.TransactionType
 import com.bondy.bondybranch.domain.usecase.FetchBrandUseCase
 import com.bondy.bondybranch.domain.usecase.FetchBranchUseCase
 import com.bondy.bondybranch.domain.usecase.ObserveBranchStatsUseCase
@@ -25,7 +27,7 @@ class DashboardViewModel @Inject constructor(
     private val observeBranchStatsUseCase: ObserveBranchStatsUseCase,
     private val observeTransactionsUseCase: ObserveTransactionsUseCase
 ) : ViewModel() {
-
+    private val useMockData = true
     var uiState by mutableStateOf(DashboardUiState())
         private set
 
@@ -35,9 +37,13 @@ class DashboardViewModel @Inject constructor(
     private val defaultBranchId = 10 // TODO: replace with persisted branch selection
 
     init {
-        observeStats()
-        observeTransactions()
-        refreshReferenceData()
+        if (useMockData) {
+            loadMockData()
+        } else {
+            observeStats()
+            observeTransactions()
+            refreshReferenceData()
+        }
     }
 
     fun refreshReferenceData() {
@@ -140,6 +146,28 @@ class DashboardViewModel @Inject constructor(
                 }
             }
         }
+    }
+    private fun loadMockData() {
+        uiState = DashboardUiState(
+            brandName = "Bondy Coffee",
+            welcomingMessage = "Morning, Shift #A!",
+            branchLocation = "Riyadh - Tahlia Street",
+            dailyStats = BranchDailyStats(120, 15),
+            recentTransactions = List(5) { index ->
+                Transaction(
+                    id = index + 1,
+                    userId = 100 + index,
+                    brandId = 10,
+                    cardId = 200 + index,
+                    transactionType = if (index % 2 == 0)
+                        TransactionType.SALE else TransactionType.REDEEM,
+                    source = TransactionSource.POS,
+                    cupsCount = (1..3).random(),
+                    rewardsEarned = if (index % 2 == 0) 0 else 1,
+                    message = if (index % 2 == 0) "Sale processed" else "Reward claimed"
+                )
+            }
+        )
     }
 }
 

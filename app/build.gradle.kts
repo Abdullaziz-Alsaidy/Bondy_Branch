@@ -47,6 +47,11 @@ android {
     buildFeatures {
         compose = true
     }
+    // @NetworkModule.IoDispatcher private val ioDispatcher: CoroutineDispatcher
+    // caused me to write Kotlin options below to get it to work
+    kotlinOptions {
+        freeCompilerArgs = listOf("-XXLanguage:+PropertyParamAnnotationDefaultTargetMode")
+    }
 }
 
 dependencies {

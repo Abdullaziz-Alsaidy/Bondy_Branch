@@ -11,6 +11,7 @@ import com.bondy.bondybranch.data.remote.api.LoginRequest
 import com.bondy.bondybranch.data.remote.api.RedeemRequest
 import com.bondy.bondybranch.data.remote.api.SaleRequest
 import com.bondy.bondybranch.data.remote.source.BondyRemoteDataSource
+import com.bondy.bondybranch.di.NetworkModule
 import com.bondy.bondybranch.domain.repository.BondyRepository
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -23,7 +24,7 @@ import kotlinx.coroutines.flow.flowOn
 @Singleton
 class BondyRepositoryImpl @Inject constructor(
     private val remoteDataSource: BondyRemoteDataSource,
-    private val ioDispatcher: CoroutineDispatcher = Dispatchers.IO
+    @NetworkModule.IoDispatcher private val ioDispatcher: CoroutineDispatcher
 ) : BondyRepository {
 
     override fun login(username: String, password: String): Flow<NetworkResult<AuthSession>> =

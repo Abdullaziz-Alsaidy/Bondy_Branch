@@ -1,16 +1,21 @@
 package com.bondy.bondybranch.di
 
 import com.bondy.bondybranch.data.remote.api.BondyApiService
+import com.bondy.bondybranch.data.repository.BondyRepositoryImpl
+import com.bondy.bondybranch.domain.repository.BondyRepository
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.Dispatchers
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
+import javax.inject.Qualifier
 import javax.inject.Singleton
 
 @Module
@@ -47,4 +52,42 @@ object NetworkModule {
     @Singleton
     fun provideBondyApiService(retrofit: Retrofit): BondyApiService =
         retrofit.create(BondyApiService::class.java)
+
+    @Provides
+    @Singleton
+    fun provideBondyRepository(
+        repositoryImpl: BondyRepositoryImpl
+    ): BondyRepository = repositoryImpl
+
+    @Qualifier
+    @Retention(AnnotationRetention.BINARY)
+    annotation class IoDispatcher
+
+    @Qualifier
+    @Retention(AnnotationRetention.BINARY)
+    annotation class MainDispatcher
+
+    @Qualifier
+    @Retention(AnnotationRetention.BINARY)
+    annotation class DefaultDispatcher
+
+    @Module
+    @InstallIn(SingletonComponent::class)
+    object DispatcherModule {
+
+        @IoDispatcher
+        @Provides
+        @Singleton
+        fun providesIoDispatcher(): CoroutineDispatcher = Dispatchers.IO
+
+        @MainDispatcher
+        @Provides
+        @Singleton
+        fun providesMainDispatcher(): CoroutineDispatcher = Dispatchers.Main
+
+        @DefaultDispatcher
+        @Provides
+        @Singleton
+        fun providesDefaultDispatcher(): CoroutineDispatcher = Dispatchers.Default
+    }
 }
