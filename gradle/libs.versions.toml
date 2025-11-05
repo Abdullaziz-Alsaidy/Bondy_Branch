@@ -19,6 +19,7 @@ playServicesLocation = "21.3.0"
 firebaseAuthKtx = "23.2.0"
 geohash = "1.4.0"
 composeMaterial = "1.5.1"
+material3 = "1.5.0-alpha04"
 [libraries]
 # Geo Hash
 geohash = { module = "ch.hsr:geohash", version.ref = "geohash" }
@@ -56,6 +57,11 @@ firebase-firestore-ktx = { group = "com.google.firebase", name = "firebase-fires
 play-services-location = { group = "com.google.android.gms", name = "play-services-location", version.ref = "playServicesLocation" }
 firebase-auth-ktx = { group = "com.google.firebase", name = "firebase-auth-ktx", version.ref = "firebaseAuthKtx" }
 androidx-compose-material = { group = "androidx.wear.compose", name = "compose-material", version.ref = "composeMaterial" }
+androidx-compose-ui = { group = "androidx.compose.ui", name = "ui" }
+androidx-compose-ui-graphics = { group = "androidx.compose.ui", name = "ui-graphics" }
+androidx-compose-ui-tooling = { group = "androidx.compose.ui", name = "ui-tooling" }
+androidx-compose-ui-tooling-preview = { group = "androidx.compose.ui", name = "ui-tooling-preview" }
+androidx-compose-material3 = { group = "androidx.compose.material3", name = "material3", version.ref = "material3" }
 
 [plugins]
 # Hilt Plugin
