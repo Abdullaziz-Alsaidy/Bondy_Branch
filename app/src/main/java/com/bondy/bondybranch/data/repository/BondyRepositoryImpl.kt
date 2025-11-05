@@ -31,8 +31,8 @@ class BondyRepositoryImpl @Inject constructor(
         flow {
             emit(NetworkResult.Loading)
             try {
-                val response = remoteDataSource.login(LoginRequest(username, password))
-                emit(NetworkResult.Success(AuthSession(response.token, response.userId)))
+                val payload = remoteDataSource.login(LoginRequest(username, password))
+                emit(NetworkResult.Success(AuthSession(payload.access_token, 1)))
             } catch (throwable: Throwable) {
                 emit(NetworkResult.Error(throwable.message.orEmpty(), throwable))
             }

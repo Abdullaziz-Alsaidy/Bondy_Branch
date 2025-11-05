@@ -11,12 +11,30 @@ import javax.inject.Singleton
 class BondyRemoteDataSource @Inject constructor(
     private val apiService: BondyApiService
 ) {
-    suspend fun login(request: LoginRequest) = apiService.login(request)
-    suspend fun getCard(cardNumber: String) = apiService.getCard(cardNumber)
-    suspend fun processSale(request: SaleRequest) = apiService.processSale(request)
-    suspend fun processRedeem(request: RedeemRequest) = apiService.processRedeem(request)
-    suspend fun getBrand() = apiService.getBrand()
-    suspend fun getBranch(branchId: Int) = apiService.getBranch(branchId)
-    suspend fun getDailyStats() = apiService.getDailyStats()
-    suspend fun getTransactions() = apiService.getTransactions()
+    suspend fun login(request: LoginRequest) =
+        apiService.login(
+            email = request.username,
+            password = request.password
+        ).payload
+
+    suspend fun getCard(cardNumber: String) =
+        apiService.getCard(cardNumber).payload
+
+    suspend fun processSale(request: SaleRequest) =
+        apiService.processSale(request).payload
+
+    suspend fun processRedeem(request: RedeemRequest) =
+        apiService.processRedeem(request).payload
+
+    suspend fun getBrand() =
+        apiService.getBrand().payload
+
+    suspend fun getBranch(branchId: Int) =
+        apiService.getBranch(branchId).payload
+
+    suspend fun getDailyStats() =
+        apiService.getDailyStats().payload
+
+    suspend fun getTransactions() =
+        apiService.getTransactions().payload
 }

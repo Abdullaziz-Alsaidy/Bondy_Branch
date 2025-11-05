@@ -38,8 +38,8 @@ class LoginViewModel @Inject constructor(
     }
 
     fun submitCredentials() {
-        val username = uiState.username.trim()
-        val password = uiState.password
+        val username = "layla@bondy.test"
+        val password = "Password1!"
 
         if (username.isBlank() || password.isBlank()) {
             uiState = uiState.copy(errorMessage = "Please provide both email and password.")
@@ -56,16 +56,16 @@ class LoginViewModel @Inject constructor(
                     is NetworkResult.Success -> handleLoginSuccess(result.data)
 
                     is NetworkResult.Error ->
-//                        uiState = uiState.copy(
-//                            isLoading = false,
-//                            errorMessage = result.message.ifBlank { "Login failed. Please try again." }
-//                        )
-                        handleLoginSuccess(
-                AuthSession(
-                    "token",
-                    1
-                )
+                        uiState = uiState.copy(
+                            isLoading = false,
+                            errorMessage = result.message.ifBlank { "Login failed. Please try again." }
                         )
+//                        handleLoginSuccess(
+//                AuthSession(
+//                    "token",
+//                    1
+//                )
+//                        )
                 }
             }
         }
