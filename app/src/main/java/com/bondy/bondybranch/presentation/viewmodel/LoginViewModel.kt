@@ -63,20 +63,7 @@ class LoginViewModel @Inject constructor(
                         )
                 }
             }
-            loginUseCase.logIn(username, password).collectLatest { result ->
-                when (result) {
-                    is NetworkResult.Loading ->
-                        uiState = uiState.copy(isLoading = true, errorMessage = null)
 
-                    is NetworkResult.Success -> handleLoginSuccess(result.data)
-
-                    is NetworkResult.Error ->
-                        uiState = uiState.copy(
-                            isLoading = false,
-                            errorMessage = result.message.ifBlank { "Login failed. Please try again." }
-                        )
-                }
-            }
 
         }
     }
@@ -86,17 +73,6 @@ class LoginViewModel @Inject constructor(
         uiState = uiState.copy(isLoading = false, errorMessage = null)
         _events.emit(LoginEvent.Success(session))
 
-        loginUseCase.getUserInfo(session.token).collectLatest { result ->
-            when (result) {
-                is NetworkResult.Loading ->
-                    Log.d("sdas###", "Loading\n${session.token}")
-
-                is NetworkResult.Success -> Log.d("sdas###", result.data.toString())
-
-                is NetworkResult.Error ->
-                    Log.d("sdas###", "Error")
-            }
-        }
     }
 }
 

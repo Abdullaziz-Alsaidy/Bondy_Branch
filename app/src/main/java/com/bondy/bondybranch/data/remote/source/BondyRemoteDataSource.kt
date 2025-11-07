@@ -15,33 +15,33 @@ class BondyRemoteDataSource @Inject constructor(
         apiService.login(
             email = request.username,
             password = request.password
-        ).payload
+        )
 
     suspend fun getUserInfo(token: String) =
         apiService.getUserInfo(
             token = "Bearer $token"
-        ).payload
+        )
 
     suspend fun getCard(cardNumber: String) =
-        apiService.getCard(cardNumber).payload
+        apiService.getCard(cardNumber)
 
     suspend fun processSale(request: SaleRequest) =
-        apiService.processSale(request).payload
+        apiService.processSale(request)
 
     suspend fun processRedeem(request: RedeemRequest) =
-        apiService.processRedeem(request).payload
+        apiService.processRedeem(request)
 
     suspend fun getBrand() =
-        apiService.getBrand().payload
+        apiService.getBrand()
 
     suspend fun getBranch(branchId: Int) =
-        apiService.getBranch(branchId).payload
+        apiService.getBranch(branchId)
 
     suspend fun getDailyStats() =
-        apiService.getDailyStats().payload
+        apiService.getDailyStats()
 
-    suspend fun getTransactions() =
+    suspend fun getTransactions(branchId: String = "5") =
         apiService.getTransactions(
-            branchId = "5"
-        ).payload
+            branchId = branchId
+        )
 }

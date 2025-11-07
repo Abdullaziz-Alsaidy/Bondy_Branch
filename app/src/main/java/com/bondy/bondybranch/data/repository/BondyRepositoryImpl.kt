@@ -8,6 +8,7 @@ import com.bondy.bondybranch.data.model.Brand
 import com.bondy.bondybranch.data.model.LoyaltyCard
 import com.bondy.bondybranch.data.model.Transaction
 import com.bondy.bondybranch.data.model.UserInfo
+import com.bondy.bondybranch.data.remote.api.ApiResponse
 import com.bondy.bondybranch.data.remote.api.LoginRequest
 import com.bondy.bondybranch.data.remote.api.RedeemRequest
 import com.bondy.bondybranch.data.remote.api.SaleRequest
@@ -17,10 +18,11 @@ import com.bondy.bondybranch.domain.repository.BondyRepository
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
+import org.json.JSONObject
+import retrofit2.HttpException
 
 @Singleton
 class BondyRepositoryImpl @Inject constructor(
@@ -32,24 +34,24 @@ class BondyRepositoryImpl @Inject constructor(
         flow {
             emit(NetworkResult.Loading)
             try {
-                val payload = remoteDataSource.login(LoginRequest(username, password))
-                emit(NetworkResult.Success(AuthSession(payload.access_token, 1)))
+                val response = remoteDataSource.login(LoginRequest(username, password))
+                emit(response.toNetworkResult { payload ->
+                    // Backend currently omits user id; keep placeholder until provided.
+                    AuthSession(payload.access_token, userId = 1)
+                })
             } catch (throwable: Throwable) {
-                emit(NetworkResult.Error(throwable.message.orEmpty(), throwable))
+                emit(NetworkResult.Error(parseServerMessage(throwable), throwable))
             }
         }.flowOn(ioDispatcher)
-
-
-
 
     override fun fetchLoyaltyCard(cardNumber: String): Flow<NetworkResult<LoyaltyCard>> =
         flow {
             emit(NetworkResult.Loading)
             try {
-                val card = remoteDataSource.getCard(cardNumber)
-                emit(NetworkResult.Success(card))
+                val response = remoteDataSource.getCard(cardNumber)
+                emit(response.toNetworkResult { it })
             } catch (throwable: Throwable) {
-                emit(NetworkResult.Error(throwable.message.orEmpty(), throwable))
+                emit(NetworkResult.Error(parseServerMessage(throwable), throwable))
             }
         }.flowOn(ioDispatcher)
 
@@ -57,10 +59,10 @@ class BondyRepositoryImpl @Inject constructor(
         flow {
             emit(NetworkResult.Loading)
             try {
-                val userInfo = remoteDataSource.getUserInfo(token)
-                emit(NetworkResult.Success(userInfo))
+                val response = remoteDataSource.getUserInfo(token)
+                emit(response.toNetworkResult { it })
             } catch (throwable: Throwable) {
-                emit(NetworkResult.Error(throwable.message.orEmpty(), throwable))
+                emit(NetworkResult.Error(parseServerMessage(throwable), throwable))
             }
         }.flowOn(ioDispatcher)
 
@@ -68,10 +70,10 @@ class BondyRepositoryImpl @Inject constructor(
         flow {
             emit(NetworkResult.Loading)
             try {
-                val transaction = remoteDataSource.processSale(SaleRequest(cardNumber, cups))
-                emit(NetworkResult.Success(transaction))
+                val response = remoteDataSource.processSale(SaleRequest(cardNumber, cups))
+                emit(response.toNetworkResult { it })
             } catch (throwable: Throwable) {
-                emit(NetworkResult.Error(throwable.message.orEmpty(), throwable))
+                emit(NetworkResult.Error(parseServerMessage(throwable), throwable))
             }
         }.flowOn(ioDispatcher)
 
@@ -79,10 +81,10 @@ class BondyRepositoryImpl @Inject constructor(
         flow {
             emit(NetworkResult.Loading)
             try {
-                val transaction = remoteDataSource.processRedeem(RedeemRequest(cardNumber))
-                emit(NetworkResult.Success(transaction))
+                val response = remoteDataSource.processRedeem(RedeemRequest(cardNumber))
+                emit(response.toNetworkResult { it })
             } catch (throwable: Throwable) {
-                emit(NetworkResult.Error(throwable.message.orEmpty(), throwable))
+                emit(NetworkResult.Error(parseServerMessage(throwable), throwable))
             }
         }.flowOn(ioDispatcher)
 
@@ -90,10 +92,10 @@ class BondyRepositoryImpl @Inject constructor(
         flow {
             emit(NetworkResult.Loading)
             try {
-                val brand = remoteDataSource.getBrand()
-                emit(NetworkResult.Success(brand))
+                val response = remoteDataSource.getBrand()
+                emit(response.toNetworkResult { it })
             } catch (throwable: Throwable) {
-                emit(NetworkResult.Error(throwable.message.orEmpty(), throwable))
+                emit(NetworkResult.Error(parseServerMessage(throwable), throwable))
             }
         }.flowOn(ioDispatcher)
 
@@ -101,10 +103,10 @@ class BondyRepositoryImpl @Inject constructor(
         flow {
             emit(NetworkResult.Loading)
             try {
-                val branch = remoteDataSource.getBranch(branchId)
-                emit(NetworkResult.Success(branch))
+                val response = remoteDataSource.getBranch(branchId)
+                emit(response.toNetworkResult { it })
             } catch (throwable: Throwable) {
-                emit(NetworkResult.Error(throwable.message.orEmpty(), throwable))
+                emit(NetworkResult.Error(parseServerMessage(throwable), throwable))
             }
         }.flowOn(ioDispatcher)
 
@@ -112,10 +114,10 @@ class BondyRepositoryImpl @Inject constructor(
         flow {
             emit(NetworkResult.Loading)
             try {
-                val stats = remoteDataSource.getDailyStats()
-                emit(NetworkResult.Success(stats))
+                val response = remoteDataSource.getDailyStats()
+                emit(response.toNetworkResult { it })
             } catch (throwable: Throwable) {
-                emit(NetworkResult.Error(throwable.message.orEmpty(), throwable))
+                emit(NetworkResult.Error(parseServerMessage(throwable), throwable))
             }
         }.flowOn(ioDispatcher)
 
@@ -123,10 +125,34 @@ class BondyRepositoryImpl @Inject constructor(
         flow {
             emit(NetworkResult.Loading)
             try {
-                val history = remoteDataSource.getTransactions()
-                emit(NetworkResult.Success(history))
+                val response = remoteDataSource.getTransactions()
+                emit(response.toNetworkResult { it })
             } catch (throwable: Throwable) {
-                emit(NetworkResult.Error(throwable.message.orEmpty(), throwable))
+                emit(NetworkResult.Error(parseServerMessage(throwable), throwable))
             }
         }.flowOn(ioDispatcher)
 }
+
+private fun parseServerMessage(throwable: Throwable): String {
+    if (throwable is HttpException) {
+        val fallback = throwable.message.orEmpty()
+        val errorBody = throwable.response()?.errorBody()?.string()
+        if (!errorBody.isNullOrBlank()) {
+            return try {
+                val json = JSONObject(errorBody)
+                json.optString("message").ifBlank { fallback.ifBlank { "Request failed." } }
+            } catch (_: Exception) {
+                fallback.ifBlank { "Request failed." }
+            }
+        }
+        return fallback.ifBlank { "Request failed." }
+    }
+    return throwable.message.orEmpty().ifBlank { "Request failed." }
+}
+
+private fun <T, R> ApiResponse<T>.toNetworkResult(mapper: (T) -> R): NetworkResult<R> =
+    if (status in 200..299) {
+        NetworkResult.Success(mapper(payload))
+    } else {
+        NetworkResult.Error(message.ifBlank { "Request failed." })
+    }
