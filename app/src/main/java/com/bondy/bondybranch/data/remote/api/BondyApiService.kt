@@ -38,7 +38,9 @@ interface BondyApiService {
     suspend fun getDailyStats(): ApiResponse<BranchDailyStats>
 
     @GET("transactions")
-    suspend fun getTransactions(): ApiResponse<List<Transaction>>
+    suspend fun getTransactions(
+        @Query("branchId") branchId: String
+    ): ApiResponse<List<Transaction>>
 }
 
 @Serializable
