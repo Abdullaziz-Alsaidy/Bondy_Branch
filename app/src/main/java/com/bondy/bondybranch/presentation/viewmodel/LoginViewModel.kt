@@ -9,6 +9,7 @@ import androidx.lifecycle.viewModelScope
 import com.bondy.bondybranch.core.network.NetworkResult
 import com.bondy.bondybranch.data.model.AuthSession
 import com.bondy.bondybranch.domain.usecase.LoginUseCase
+import com.bondy.bondybranch.utility.PreferenceStorage
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 import kotlinx.coroutines.Job
@@ -19,7 +20,8 @@ import kotlinx.coroutines.launch
 
 @HiltViewModel
 class LoginViewModel @Inject constructor(
-    private val loginUseCase: LoginUseCase
+    private val loginUseCase: LoginUseCase,
+    private val prefs: PreferenceStorage
 ) : ViewModel() {
 
     var uiState by mutableStateOf(LoginUiState())
@@ -66,10 +68,14 @@ class LoginViewModel @Inject constructor(
 
 
         }
+
+
     }
 
     private suspend fun handleLoginSuccess(session: AuthSession) {
-
+        prefs.saveAuthToken("token")
+        val x =prefs.getAuthToken()
+        Log.d("TTTQWE","Token :$x")
         uiState = uiState.copy(isLoading = false, errorMessage = null)
         _events.emit(LoginEvent.Success(session))
 
