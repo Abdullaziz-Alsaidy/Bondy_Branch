@@ -7,6 +7,7 @@ import com.bondy.bondybranch.data.model.BranchDailyStats
 import com.bondy.bondybranch.data.model.Brand
 import com.bondy.bondybranch.data.model.LoyaltyCard
 import com.bondy.bondybranch.data.model.Transaction
+import com.bondy.bondybranch.data.model.UserInfo
 import com.bondy.bondybranch.data.remote.api.LoginRequest
 import com.bondy.bondybranch.data.remote.api.RedeemRequest
 import com.bondy.bondybranch.data.remote.api.SaleRequest
@@ -38,12 +39,26 @@ class BondyRepositoryImpl @Inject constructor(
             }
         }.flowOn(ioDispatcher)
 
+
+
+
     override fun fetchLoyaltyCard(cardNumber: String): Flow<NetworkResult<LoyaltyCard>> =
         flow {
             emit(NetworkResult.Loading)
             try {
                 val card = remoteDataSource.getCard(cardNumber)
                 emit(NetworkResult.Success(card))
+            } catch (throwable: Throwable) {
+                emit(NetworkResult.Error(throwable.message.orEmpty(), throwable))
+            }
+        }.flowOn(ioDispatcher)
+
+    override fun getUserInfo(token: String): Flow<NetworkResult<UserInfo>> =
+        flow {
+            emit(NetworkResult.Loading)
+            try {
+                val userInfo = remoteDataSource.getUserInfo(token)
+                emit(NetworkResult.Success(userInfo))
             } catch (throwable: Throwable) {
                 emit(NetworkResult.Error(throwable.message.orEmpty(), throwable))
             }

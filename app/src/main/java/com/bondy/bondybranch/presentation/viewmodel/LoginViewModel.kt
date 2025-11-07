@@ -1,5 +1,6 @@
 package com.bondy.bondybranch.presentation.viewmodel
 
+import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -48,7 +49,7 @@ class LoginViewModel @Inject constructor(
 
         loginJob?.cancel()
         loginJob = viewModelScope.launch {
-            loginUseCase(username, password).collectLatest { result ->
+            loginUseCase.logIn(username, password).collectLatest { result ->
                 when (result) {
                     is NetworkResult.Loading ->
                         uiState = uiState.copy(isLoading = true, errorMessage = null)
@@ -60,20 +61,42 @@ class LoginViewModel @Inject constructor(
                             isLoading = false,
                             errorMessage = result.message.ifBlank { "Login failed. Please try again." }
                         )
-//                        handleLoginSuccess(
-//                AuthSession(
-//                    "token",
-//                    1
-//                )
-//                        )
                 }
             }
+            loginUseCase.logIn(username, password).collectLatest { result ->
+                when (result) {
+                    is NetworkResult.Loading ->
+                        uiState = uiState.copy(isLoading = true, errorMessage = null)
+
+                    is NetworkResult.Success -> handleLoginSuccess(result.data)
+
+                    is NetworkResult.Error ->
+                        uiState = uiState.copy(
+                            isLoading = false,
+                            errorMessage = result.message.ifBlank { "Login failed. Please try again." }
+                        )
+                }
+            }
+
         }
     }
 
     private suspend fun handleLoginSuccess(session: AuthSession) {
+
         uiState = uiState.copy(isLoading = false, errorMessage = null)
         _events.emit(LoginEvent.Success(session))
+
+        loginUseCase.getUserInfo(session.token).collectLatest { result ->
+            when (result) {
+                is NetworkResult.Loading ->
+                    Log.d("sdas###", "Loading\n${session.token}")
+
+                is NetworkResult.Success -> Log.d("sdas###", result.data.toString())
+
+                is NetworkResult.Error ->
+                    Log.d("sdas###", "Error")
+            }
+        }
     }
 }
 

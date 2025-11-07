@@ -17,6 +17,11 @@ class BondyRemoteDataSource @Inject constructor(
             password = request.password
         ).payload
 
+    suspend fun getUserInfo(token: String) =
+        apiService.getUserInfo(
+            token = "Bearer $token"
+        ).payload
+
     suspend fun getCard(cardNumber: String) =
         apiService.getCard(cardNumber).payload
 

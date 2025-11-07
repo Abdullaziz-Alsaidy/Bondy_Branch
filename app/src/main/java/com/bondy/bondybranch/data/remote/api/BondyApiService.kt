@@ -5,9 +5,11 @@ import com.bondy.bondybranch.data.model.BranchDailyStats
 import com.bondy.bondybranch.data.model.Brand
 import com.bondy.bondybranch.data.model.LoyaltyCard
 import com.bondy.bondybranch.data.model.Transaction
+import com.bondy.bondybranch.data.model.UserInfo
 import kotlinx.serialization.Serializable
 import retrofit2.http.Body
 import retrofit2.http.GET
+import retrofit2.http.Header
 import retrofit2.http.POST
 import retrofit2.http.Path
 import retrofit2.http.Query
@@ -18,6 +20,12 @@ interface BondyApiService {
         @Query("email") email: String,
         @Query("password") password: String
     ): ApiResponse<LoginPayload>
+
+
+    @GET("auth/profile")
+    suspend fun getUserInfo(
+        @Header("Authorization") token: String
+    ): ApiResponse<UserInfo>
 
     @GET("getCard/{cardNumber}")
     suspend fun getCard(@Path("cardNumber") cardNumber: String): ApiResponse<LoyaltyCard>
