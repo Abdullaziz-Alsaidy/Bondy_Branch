@@ -27,7 +27,7 @@ class DashboardViewModel @Inject constructor(
     private val observeBranchStatsUseCase: ObserveBranchStatsUseCase,
     private val observeTransactionsUseCase: ObserveTransactionsUseCase
 ) : ViewModel() {
-    private val useMockData = false
+    private val useMockData = true
     var uiState by mutableStateOf(DashboardUiState())
         private set
 
@@ -43,9 +43,32 @@ class DashboardViewModel @Inject constructor(
             observeStats()
             observeTransactions()
             refreshReferenceData()
+
         }
     }
+    private fun fetchUserInfo() {
+        viewModelScope.launch {
+            fetchBrandUseCase().collectLatest { result ->
+                when (result) {
+                    is NetworkResult.Loading ->
+                        uiState = uiState.copy(isBrandLoading = true)
 
+                    is NetworkResult.Success ->
+                        uiState = uiState.copy(
+                            isBrandLoading = false,
+                            brandName = result.data.name,
+                            welcomingMessage = result.data.welcomingMessage
+                        )
+
+                    is NetworkResult.Error ->
+                        uiState = uiState.copy(
+                            isBrandLoading = false,
+                            errorMessage = result.message
+                        )
+                }
+            }
+        }
+    }
     fun refreshReferenceData() {
         fetchBrand()
         fetchBranch(defaultBranchId)

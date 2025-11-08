@@ -7,6 +7,7 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 /**
+ *
  * Centralized SharedPreferences helper for persisting lightweight app data such as auth token.
  */
 @Singleton

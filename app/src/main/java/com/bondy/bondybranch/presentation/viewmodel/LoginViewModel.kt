@@ -73,9 +73,7 @@ class LoginViewModel @Inject constructor(
     }
 
     private suspend fun handleLoginSuccess(session: AuthSession) {
-        prefs.saveAuthToken("token")
-        val x =prefs.getAuthToken()
-        Log.d("TTTQWE","Token :$x")
+        prefs.saveAuthToken(session.token)
         uiState = uiState.copy(isLoading = false, errorMessage = null)
         _events.emit(LoginEvent.Success(session))
 

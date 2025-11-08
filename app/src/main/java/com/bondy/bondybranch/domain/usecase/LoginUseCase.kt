@@ -12,7 +12,4 @@ class LoginUseCase @Inject constructor(
 ) {
      fun logIn(username: String, password: String): Flow<NetworkResult<AuthSession>> =
         repository.login(username, password)
-
-    fun getUserInfo(token: String): Flow<NetworkResult<UserInfo>> =
-        repository.getUserInfo(token)
 }
