@@ -41,8 +41,8 @@ class LoginViewModel @Inject constructor(
     }
 
     fun submitCredentials() {
-        val username = "layla@bondy.test"
-        val password = "Password1!"
+        val username = "abdullaziz@test.com"
+        val password = "123456"
 
         if (username.isBlank() || password.isBlank()) {
             uiState = uiState.copy(errorMessage = "Please provide both email and password.")
