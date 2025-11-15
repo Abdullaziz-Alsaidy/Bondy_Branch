@@ -12,16 +12,28 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
+import com.bondy.bondybranch.presentation.viewmodel.CardDetailsViewModel
+import com.bondy.bondybranch.presentation.viewmodel.LoginEvent
+import com.bondy.bondybranch.presentation.viewmodel.LoginViewModel
+import com.google.android.play.core.integrity.v
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CardDetailsScreen(
     cardNumber: String,
-    onBack: () -> Unit
+    onBack: () -> Unit,
+    viewModel: CardDetailsViewModel = hiltViewModel()
 ) {
+    LaunchedEffect(viewModel) {
+        //viewModel.logCardDetails(card = cardNumber)
+    }
     Scaffold(
         topBar = {
             TopAppBar(
@@ -45,7 +57,11 @@ fun CardDetailsScreen(
                 text = "Detailed card view coming soon",
                 style = MaterialTheme.typography.bodyMedium
             )
-            Button(onClick = onBack, modifier = Modifier.fillMaxWidth()) {
+            Button(
+                onClick = {
+                    viewModel.logCardDetails(card = cardNumber)
+                    onBack },
+                modifier = Modifier.fillMaxWidth()) {
                 Text("Back")
             }
         }
