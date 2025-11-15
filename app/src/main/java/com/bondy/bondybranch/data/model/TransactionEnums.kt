@@ -5,7 +5,8 @@ import kotlinx.serialization.Serializable
 @Serializable
 enum class TransactionType {
     SALE,
-    REDEEM
+    REDEEM,
+    purchase
 }
 
 @Serializable

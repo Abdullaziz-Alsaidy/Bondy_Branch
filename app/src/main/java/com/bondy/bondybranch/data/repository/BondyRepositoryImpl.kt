@@ -1,5 +1,6 @@
 package com.bondy.bondybranch.data.repository
 
+import android.util.Log
 import com.bondy.bondybranch.core.network.NetworkResult
 import com.bondy.bondybranch.data.model.AuthSession
 import com.bondy.bondybranch.data.model.Branch
@@ -15,6 +16,7 @@ import com.bondy.bondybranch.data.remote.api.SaleRequest
 import com.bondy.bondybranch.data.remote.source.BondyRemoteDataSource
 import com.bondy.bondybranch.di.NetworkModule
 import com.bondy.bondybranch.domain.repository.BondyRepository
+import com.bondy.bondybranch.utility.PreferenceStorage
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlinx.coroutines.CoroutineDispatcher
@@ -27,9 +29,11 @@ import retrofit2.HttpException
 @Singleton
 class BondyRepositoryImpl @Inject constructor(
     private val remoteDataSource: BondyRemoteDataSource,
+    private val prefs: PreferenceStorage,
     @NetworkModule.IoDispatcher private val ioDispatcher: CoroutineDispatcher
 ) : BondyRepository {
 
+    val token = prefs.getAuthToken().orEmpty()
     override fun login(username: String, password: String): Flow<NetworkResult<AuthSession>> =
         flow {
             emit(NetworkResult.Loading)
@@ -125,7 +129,7 @@ class BondyRepositoryImpl @Inject constructor(
         flow {
             emit(NetworkResult.Loading)
             try {
-                val response = remoteDataSource.getTransactions()
+                val response = remoteDataSource.getTransactions(token = "Bearer $token")
                 emit(response.toNetworkResult { it })
             } catch (throwable: Throwable) {
                 emit(NetworkResult.Error(parseServerMessage(throwable), throwable))

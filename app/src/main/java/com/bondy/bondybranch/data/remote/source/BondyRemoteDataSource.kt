@@ -40,8 +40,6 @@ class BondyRemoteDataSource @Inject constructor(
     suspend fun getDailyStats() =
         apiService.getDailyStats()
 
-    suspend fun getTransactions(branchId: String = "5") =
-        apiService.getTransactions(
-            branchId = branchId
-        )
+    suspend fun getTransactions(token: String) =
+        apiService.getTransactions(token = token)
 }

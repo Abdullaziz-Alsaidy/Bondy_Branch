@@ -47,7 +47,7 @@ interface BondyApiService {
 
     @GET("transactions")
     suspend fun getTransactions(
-        @Query("branchId") branchId: String
+        @Header("Authorization") token: String
     ): ApiResponse<List<Transaction>>
 }
 
