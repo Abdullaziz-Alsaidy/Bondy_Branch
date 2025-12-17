@@ -10,11 +10,14 @@ import com.bondy.bondybranch.data.model.LoyaltyCard
 import com.bondy.bondybranch.data.model.Transaction
 import com.bondy.bondybranch.data.model.UserInfo
 import com.bondy.bondybranch.data.remote.api.ApiResponse
+import com.bondy.bondybranch.data.remote.api.CreateTransactionRequest
 import com.bondy.bondybranch.data.remote.api.LoginRequest
 import com.bondy.bondybranch.data.remote.api.RedeemRequest
 import com.bondy.bondybranch.data.remote.api.SaleRequest
+import com.bondy.bondybranch.data.remote.api.TransactionItemRequest
 import com.bondy.bondybranch.data.remote.source.BondyRemoteDataSource
 import com.bondy.bondybranch.di.NetworkModule
+import com.bondy.bondybranch.domain.model.ManualTransactionInput
 import com.bondy.bondybranch.domain.repository.BondyRepository
 import com.bondy.bondybranch.utility.PreferenceStorage
 import javax.inject.Inject
@@ -33,7 +36,8 @@ class BondyRepositoryImpl @Inject constructor(
     @NetworkModule.IoDispatcher private val ioDispatcher: CoroutineDispatcher
 ) : BondyRepository {
 
-    val token = prefs.getAuthToken().orEmpty()
+    //val token = prefs.getAuthToken().orEmpty()
+    val token = "Bearer ${prefs.getAuthToken()}".orEmpty()
     override fun login(username: String, password: String): Flow<NetworkResult<AuthSession>> =
         flow {
             emit(NetworkResult.Loading)
@@ -92,6 +96,39 @@ class BondyRepositoryImpl @Inject constructor(
             }
         }.flowOn(ioDispatcher)
 
+    override fun createTransaction(input: ManualTransactionInput): Flow<NetworkResult<Transaction>> =
+        flow {
+            emit(NetworkResult.Loading)
+            try {
+
+                val request = CreateTransactionRequest(
+                    transactionType = input.transactionType,
+                    source = input.source,
+                    integrationType = input.integrationType,
+                    externalRef = input.externalRef,
+                    cupsCount = input.cupsCount,
+                    items = input.items.map {
+                        TransactionItemRequest(
+                            sku = it.sku,
+                            quantity = it.quantity,
+                            price = it.price
+                        )
+                    },
+                    amountCents = input.amountCents,
+                    redeemed = input.redeemed,
+                    processed = input.processed,
+                    cardId = input.cardId
+                )
+                val response = remoteDataSource.createTransaction(
+                    request = request,
+                    token = token
+                )
+                emit(response.toNetworkResult { it })
+            } catch (throwable: Throwable) {
+                emit(NetworkResult.Error(parseServerMessage(throwable), throwable))
+            }
+        }.flowOn(ioDispatcher)
+
     override fun fetchBrand(): Flow<NetworkResult<Brand>> =
         flow {
             emit(NetworkResult.Loading)
@@ -129,7 +166,7 @@ class BondyRepositoryImpl @Inject constructor(
         flow {
             emit(NetworkResult.Loading)
             try {
-                val response = remoteDataSource.getTransactions(token = "Bearer $token")
+                val response = remoteDataSource.getTransactions(token = token)
                 emit(response.toNetworkResult { it })
             } catch (throwable: Throwable) {
                 emit(NetworkResult.Error(parseServerMessage(throwable), throwable))

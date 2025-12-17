@@ -4,7 +4,10 @@ import com.bondy.bondybranch.data.model.Branch
 import com.bondy.bondybranch.data.model.BranchDailyStats
 import com.bondy.bondybranch.data.model.Brand
 import com.bondy.bondybranch.data.model.LoyaltyCard
+import com.bondy.bondybranch.data.model.IntegrationType
 import com.bondy.bondybranch.data.model.Transaction
+import com.bondy.bondybranch.data.model.TransactionSource
+import com.bondy.bondybranch.data.model.TransactionType
 import com.bondy.bondybranch.data.model.UserInfo
 import kotlinx.serialization.Serializable
 import retrofit2.http.Body
@@ -35,6 +38,11 @@ interface BondyApiService {
 
     @POST("processRedeem")
     suspend fun processRedeem(@Body request: RedeemRequest): ApiResponse<Transaction>
+
+    @POST("transactions")
+    suspend fun createTransaction(
+        @Header("Authorization") token: String,
+        @Body request: CreateTransactionRequest): ApiResponse<Transaction>
 
     @GET("brand")
     suspend fun getBrand(): ApiResponse<Brand>
@@ -77,4 +85,25 @@ data class SaleRequest(
 @Serializable
 data class RedeemRequest(
     val cardNumber: String
+)
+
+@Serializable
+data class CreateTransactionRequest(
+    val transactionType: TransactionType,
+    val source: TransactionSource,
+    val integrationType: IntegrationType,
+    val externalRef: String,
+    val cupsCount: Int,
+    val items: List<TransactionItemRequest>,
+    val amountCents: Int,
+    val redeemed: Boolean,
+    val processed: Boolean,
+    val cardId: Long
+)
+
+@Serializable
+data class TransactionItemRequest(
+    val sku: String,
+    val quantity: Int,
+    val price: Int
 )

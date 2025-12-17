@@ -1,5 +1,6 @@
 package com.bondy.bondybranch.data.model
 
+import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
@@ -18,7 +19,9 @@ enum class TransactionSource {
 @Serializable
 enum class IntegrationType {
     FOODICS,
-    MARN
+    MARN,
+    @SerialName("internal")
+    INTERNAL
 }
 
 @Serializable

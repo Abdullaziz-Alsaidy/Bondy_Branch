@@ -1,6 +1,7 @@
 package com.bondy.bondybranch.data.remote.source
 
 import com.bondy.bondybranch.data.remote.api.BondyApiService
+import com.bondy.bondybranch.data.remote.api.CreateTransactionRequest
 import com.bondy.bondybranch.data.remote.api.LoginRequest
 import com.bondy.bondybranch.data.remote.api.RedeemRequest
 import com.bondy.bondybranch.data.remote.api.SaleRequest
@@ -30,6 +31,9 @@ class BondyRemoteDataSource @Inject constructor(
 
     suspend fun processRedeem(request: RedeemRequest) =
         apiService.processRedeem(request)
+
+    suspend fun createTransaction(request: CreateTransactionRequest, token: String) =
+        apiService.createTransaction(token = token,request = request)
 
     suspend fun getBrand() =
         apiService.getBrand()

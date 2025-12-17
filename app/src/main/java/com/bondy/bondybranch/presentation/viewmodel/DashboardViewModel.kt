@@ -27,7 +27,7 @@ class DashboardViewModel @Inject constructor(
     private val observeBranchStatsUseCase: ObserveBranchStatsUseCase,
     private val observeTransactionsUseCase: ObserveTransactionsUseCase
 ) : ViewModel() {
-    private val useMockData = false
+    private val useMockData = true
     var uiState by mutableStateOf(DashboardUiState())
         private set
 
