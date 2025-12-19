@@ -27,6 +27,19 @@ class DashboardViewModel @Inject constructor(
     private val observeBranchStatsUseCase: ObserveBranchStatsUseCase,
     private val observeTransactionsUseCase: ObserveTransactionsUseCase
 ) : ViewModel() {
+    private var _dialogVisible by mutableStateOf(false)
+    val dialogVisible: Boolean get() = _dialogVisible
+
+    fun showDialog() {
+        _dialogVisible = true
+    }
+
+    fun dismissDialog() {
+        _dialogVisible = false
+    }
+
+
+
     private val useMockData = true
     var uiState by mutableStateOf(DashboardUiState())
         private set

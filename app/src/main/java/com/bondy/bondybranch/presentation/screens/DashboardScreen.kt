@@ -1,5 +1,6 @@
 package com.bondy.bondybranch.presentation.screens
 
+import android.provider.Settings
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -15,6 +16,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.History
+import androidx.compose.material.icons.filled.PictureInPictureAlt
 import androidx.compose.material.icons.filled.QrCodeScanner
 import androidx.compose.material3.AssistChip
 import androidx.compose.material3.AssistChipDefaults
@@ -34,18 +36,25 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.bondy.bondybranch.data.model.BranchDailyStats
 import com.bondy.bondybranch.data.model.Transaction
+import com.bondy.bondybranch.overlay.DialogPermission
+import com.bondy.bondybranch.overlay.FloatingWindowContent
+import com.bondy.bondybranch.overlay.rememberFloatingWindow
 import com.bondy.bondybranch.presentation.viewmodel.DashboardUiState
 import com.bondy.bondybranch.presentation.viewmodel.DashboardViewModel
+import kotlinx.coroutines.flow.MutableStateFlow
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -56,7 +65,34 @@ fun DashboardScreen(
     viewModel: DashboardViewModel = hiltViewModel()
 ) {
     val uiState = viewModel.uiState
+    val context = LocalContext.current
+    val appContext = context.applicationContext
 
+    // If you already have a StateFlow in your VM, use it. If not, keep it local like this:
+    val showingState = remember { MutableStateFlow(false) }
+    val showing by showingState.collectAsStateWithLifecycle()
+
+    val showDialogPermission = remember { mutableStateOf(false) }
+
+    val floatingWindow = rememberFloatingWindow(appContext) {
+        FloatingWindowContent()
+    }
+
+    fun showOverlay() {
+        if (showingState.value) return
+        if (Settings.canDrawOverlays(context)) {
+            floatingWindow.show()
+            showingState.value = true
+        } else {
+            showDialogPermission.value = true
+        }
+    }
+
+    fun hideOverlay() {
+        if (!showingState.value) return
+        floatingWindow.hide()
+        showingState.value = false
+    }
     Scaffold(
         topBar = {
             CenterAlignedTopAppBar(
@@ -69,9 +105,16 @@ fun DashboardScreen(
                     IconButton(onClick = onHistoryClick) {
                         Icon(imageVector = Icons.Filled.History, contentDescription = "History")
                     }
+                    IconButton(onClick = { if (showing) hideOverlay() else showOverlay() }) {
+                        Icon(
+                            imageVector = Icons.Filled.PictureInPictureAlt,
+                            contentDescription = if (showing) "Hide overlay" else "Show overlay"
+                        )
+                    }
                 }
             )
         },
+
         floatingActionButton = {
             ExtendedFloatingActionButton(
                 onClick = onScanClick,
@@ -87,6 +130,7 @@ fun DashboardScreen(
             uiState = uiState,
             onManualLookup = onCardSelected
         )
+        DialogPermission(showDialogState = showDialogPermission)
     }
 }
 
