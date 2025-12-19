@@ -44,26 +44,28 @@ class LoginViewModel @Inject constructor(
         val username = "abdullaziz@test.com"
         val password = "123456"
 
-        if (username.isBlank() || password.isBlank()) {
-            uiState = uiState.copy(errorMessage = "Please provide both email and password.")
-            return
-        }
+//        if (username.isBlank() || password.isBlank()) {
+//            uiState = uiState.copy(errorMessage = "Please provide both email and password.")
+//            return
+//        }
 
         loginJob?.cancel()
         loginJob = viewModelScope.launch {
             loginUseCase.logIn(username, password).collectLatest { result ->
-                when (result) {
-                    is NetworkResult.Loading ->
-                        uiState = uiState.copy(isLoading = true, errorMessage = null)
-
-                    is NetworkResult.Success -> handleLoginSuccess(result.data)
-
-                    is NetworkResult.Error ->
-                        uiState = uiState.copy(
-                            isLoading = false,
-                            errorMessage = result.message.ifBlank { "Login failed. Please try again." }
-                        )
-                }
+                handleLoginSuccess(AuthSession("token", 1))
+//                when (result) {
+//
+//                    is NetworkResult.Loading ->
+//                        uiState = uiState.copy(isLoading = true, errorMessage = null)
+//
+//                    is NetworkResult.Success -> handleLoginSuccess(result.data)
+//
+//                    is NetworkResult.Error ->
+//                        uiState = uiState.copy(
+//                            isLoading = false,
+//                            errorMessage = result.message.ifBlank { "Login failed. Please try again." }
+//                        )
+//                }
             }
 
 

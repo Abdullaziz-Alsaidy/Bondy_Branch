@@ -8,10 +8,12 @@ import com.bondy.bondybranch.data.model.Brand
 import com.bondy.bondybranch.data.model.LoyaltyCard
 import com.bondy.bondybranch.data.model.Transaction
 import com.bondy.bondybranch.data.model.UserInfo
+import com.bondy.bondybranch.data.remote.api.EchoResponse
 import com.bondy.bondybranch.domain.model.ManualTransactionInput
 import kotlinx.coroutines.flow.Flow
 
 interface BondyRepository {
+    fun send(data: Map<String, String>): Flow<NetworkResult<EchoResponse>>
     fun login(username: String, password: String): Flow<NetworkResult<AuthSession>>
 
     fun getUserInfo(token: String): Flow<NetworkResult<UserInfo>>

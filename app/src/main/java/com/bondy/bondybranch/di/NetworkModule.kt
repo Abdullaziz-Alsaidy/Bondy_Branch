@@ -23,6 +23,9 @@ import javax.inject.Singleton
 object NetworkModule {
 
     private const val BASE_URL = "https://bondy-production.up.railway.app/"
+    private const val BASE_URL_TEST = "https://postman-echo.com/"
+
+
 
     @Provides
     @Singleton
@@ -43,7 +46,7 @@ object NetworkModule {
     @Singleton
     fun provideRetrofit(okHttpClient: OkHttpClient, gson: Gson): Retrofit =
         Retrofit.Builder()
-            .baseUrl(BASE_URL)
+            .baseUrl(BASE_URL_TEST)
             .addConverterFactory(GsonConverterFactory.create(gson))
             .client(okHttpClient)
             .build()

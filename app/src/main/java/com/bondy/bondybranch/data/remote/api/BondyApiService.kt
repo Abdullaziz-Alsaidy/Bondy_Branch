@@ -10,6 +10,7 @@ import com.bondy.bondybranch.data.model.TransactionSource
 import com.bondy.bondybranch.data.model.TransactionType
 import com.bondy.bondybranch.data.model.UserInfo
 import kotlinx.serialization.Serializable
+import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.GET
 import retrofit2.http.Header
@@ -57,6 +58,9 @@ interface BondyApiService {
     suspend fun getTransactions(
         @Header("Authorization") token: String
     ): ApiResponse<List<Transaction>>
+
+    @POST("postsdsad")
+    suspend fun send(@Body body: Map<String, String>): Response<EchoResponse>
 }
 
 @Serializable
@@ -106,4 +110,13 @@ data class TransactionItemRequest(
     val sku: String,
     val quantity: Int,
     val price: Int
+)
+data class SendRequest(
+    val cardNumber: String,
+    val action: String
+)
+
+data class EchoResponse(
+    val json: Map<String, Any>? = null,
+    val data: String? = null
 )

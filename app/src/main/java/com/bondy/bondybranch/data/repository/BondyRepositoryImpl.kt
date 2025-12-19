@@ -11,6 +11,7 @@ import com.bondy.bondybranch.data.model.Transaction
 import com.bondy.bondybranch.data.model.UserInfo
 import com.bondy.bondybranch.data.remote.api.ApiResponse
 import com.bondy.bondybranch.data.remote.api.CreateTransactionRequest
+import com.bondy.bondybranch.data.remote.api.EchoResponse
 import com.bondy.bondybranch.data.remote.api.LoginRequest
 import com.bondy.bondybranch.data.remote.api.RedeemRequest
 import com.bondy.bondybranch.data.remote.api.SaleRequest
@@ -38,6 +39,29 @@ class BondyRepositoryImpl @Inject constructor(
 
     //val token = prefs.getAuthToken().orEmpty()
     val token = "Bearer ${prefs.getAuthToken()}".orEmpty()
+    override fun send(data: Map<String, String>): Flow<NetworkResult<EchoResponse>> =
+        flow {
+            emit(NetworkResult.Loading)
+            try {
+                Log.d("FloatingWindow", "Clicked (repo Imp)")
+                val response = remoteDataSource.send(data)
+
+                if (response.isSuccessful) {
+                    val body = response.body()
+                    if (body != null) {
+                        emit(NetworkResult.Success(body))
+                    } else {
+                        emit(NetworkResult.Error("Empty response body", null))
+                    }
+                } else {
+                    emit(NetworkResult.Error("HTTP ${response.code()}", null))
+                }
+            } catch (t: Throwable) {
+                emit(NetworkResult.Error(parseServerMessage(t), t))
+            }
+        }.flowOn(ioDispatcher)
+
+
     override fun login(username: String, password: String): Flow<NetworkResult<AuthSession>> =
         flow {
             emit(NetworkResult.Loading)
@@ -51,6 +75,8 @@ class BondyRepositoryImpl @Inject constructor(
                 emit(NetworkResult.Error(parseServerMessage(throwable), throwable))
             }
         }.flowOn(ioDispatcher)
+
+
 
     override fun fetchLoyaltyCard(cardNumber: String): Flow<NetworkResult<LoyaltyCard>> =
         flow {

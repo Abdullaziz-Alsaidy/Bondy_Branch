@@ -14,10 +14,16 @@ import androidx.compose.ui.Modifier
 import com.github.only52607.compose.window.LocalFloatingWindow
 import com.github.only52607.compose.window.dragFloatingWindow
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.bondy.bondybranch.data.model.BranchDailyStats
+import com.bondy.bondybranch.presentation.screens.StatsCard
+import com.bondy.bondybranch.presentation.screens.StatsCard1
 
 @Composable
 fun FloatingWindowContent(
-    model: FloatingWindowViewModel = viewModel()
+    model: FloatingWindowViewModel = viewModel(),
+    stats: BranchDailyStats?, isLoading: Boolean,
+
+
 ) {
     val floatingWindow = LocalFloatingWindow.current
     if (model.dialogVisible) {
@@ -33,12 +39,15 @@ fun FloatingWindowContent(
             }
         )
     }
-    FloatingActionButton(
+
+    StatsCard1(
+        stats = stats,
+        isLoading = isLoading,
         modifier = Modifier.dragFloatingWindow(),
-        onClick = {
-            model.showDialog()
-            Log.d("TAG", "FloatingWindowContent: Clicked")
-        }) {
-        Icon(Icons.Filled.Call, "Call")
-    }
+        call = {
+            model.onSendClicked()
+            Log.d("FloatingWindow", "Clicked (Content)")
+        }
+    )
+
 }

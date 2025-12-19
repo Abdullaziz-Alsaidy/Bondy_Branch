@@ -54,6 +54,7 @@ import com.bondy.bondybranch.overlay.FloatingWindowContent
 import com.bondy.bondybranch.overlay.rememberFloatingWindow
 import com.bondy.bondybranch.presentation.viewmodel.DashboardUiState
 import com.bondy.bondybranch.presentation.viewmodel.DashboardViewModel
+import com.github.only52607.compose.window.dragFloatingWindow
 import kotlinx.coroutines.flow.MutableStateFlow
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -75,7 +76,10 @@ fun DashboardScreen(
     val showDialogPermission = remember { mutableStateOf(false) }
 
     val floatingWindow = rememberFloatingWindow(appContext) {
-        FloatingWindowContent()
+        FloatingWindowContent(
+            stats = uiState.dailyStats,
+            isLoading = uiState.isStatsLoading
+        )
     }
 
     fun showOverlay() {
@@ -98,7 +102,7 @@ fun DashboardScreen(
             CenterAlignedTopAppBar(
                 title = {
                     Text(
-                        text = if (uiState.brandName.isNotBlank()) uiState.brandName else "Bondy Dashboard"
+                        text = uiState.brandName.ifBlank { "Bondy Dashboard" }
                     )
                 },
                 actions = {
@@ -232,7 +236,7 @@ private fun DashboardContent(
 }
 
 @Composable
-private fun StatsCard(stats: BranchDailyStats?, isLoading: Boolean) {
+ fun StatsCard(stats: BranchDailyStats?, isLoading: Boolean, modifier: Modifier = Modifier) {
     Card(
         modifier = Modifier.fillMaxWidth(),
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer)
@@ -334,6 +338,39 @@ private fun TransactionItem(transaction: Transaction) {
                     style = MaterialTheme.typography.bodySmall,
                     maxLines = 2,
                     overflow = TextOverflow.Ellipsis
+                )
+            }
+        }
+    }
+}
+@Composable
+fun StatsCard1(stats: BranchDailyStats?, isLoading: Boolean, modifier: Modifier = Modifier,call: () -> Unit) {
+    Card(
+        modifier = Modifier.dragFloatingWindow(),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer),
+        onClick = {
+            call
+        }
+    ) {
+        Column(modifier = Modifier.padding(20.dp)) {
+            Text(
+                text = "Today's performance",
+                style = MaterialTheme.typography.titleMedium,
+                color = MaterialTheme.colorScheme.onPrimaryContainer
+            )
+            Spacer(modifier = Modifier.height(16.dp))
+            if (isLoading) {
+                CircularProgressIndicator(modifier = Modifier.size(24.dp))
+            } else if (stats != null) {
+                Row(horizontalArrangement = Arrangement.spacedBy(24.dp)) {
+                    StatBlock(label = "Sales", value = stats.totalSales.toString())
+                    StatBlock(label = "Redemptions", value = stats.totalRedemptions.toString())
+                }
+            } else {
+                Text(
+                    text = "No stats available",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onPrimaryContainer
                 )
             }
         }

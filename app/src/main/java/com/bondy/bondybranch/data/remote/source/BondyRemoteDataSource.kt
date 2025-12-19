@@ -12,6 +12,8 @@ import javax.inject.Singleton
 class BondyRemoteDataSource @Inject constructor(
     private val apiService: BondyApiService
 ) {
+    suspend fun send(data: Map<String, String>) =
+        apiService.send(data)
     suspend fun login(request: LoginRequest) =
         apiService.login(
             email = request.username,
