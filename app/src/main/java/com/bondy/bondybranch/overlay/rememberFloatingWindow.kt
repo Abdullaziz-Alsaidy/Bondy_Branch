@@ -1,6 +1,7 @@
 package com.bondy.bondybranch.overlay
 
 import android.content.Context
+import android.view.WindowManager
 import androidx.compose.runtime.*
 import com.github.only52607.compose.window.ComposeFloatingWindow
 
@@ -12,6 +13,10 @@ fun rememberFloatingWindow(
     // Create ONCE
     val window = remember(appContext) {
         ComposeFloatingWindow(appContext).apply {
+            // Allow text fields to take focus and show keyboard
+            windowParams.flags =
+                windowParams.flags and WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE.inv()
+            windowParams.softInputMode = WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE
             setContent { content() }
         }
     }

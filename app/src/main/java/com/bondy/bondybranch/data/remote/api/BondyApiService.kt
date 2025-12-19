@@ -59,7 +59,7 @@ interface BondyApiService {
         @Header("Authorization") token: String
     ): ApiResponse<List<Transaction>>
 
-    @POST("postsdsad")
+    @POST("post")
     suspend fun send(@Body body: Map<String, String>): Response<EchoResponse>
 }
 

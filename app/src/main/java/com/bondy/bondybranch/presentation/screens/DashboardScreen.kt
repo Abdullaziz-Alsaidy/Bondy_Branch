@@ -51,6 +51,7 @@ import com.bondy.bondybranch.data.model.BranchDailyStats
 import com.bondy.bondybranch.data.model.Transaction
 import com.bondy.bondybranch.overlay.DialogPermission
 import com.bondy.bondybranch.overlay.FloatingWindowContent
+import com.bondy.bondybranch.overlay.FloatingWindowViewModel
 import com.bondy.bondybranch.overlay.rememberFloatingWindow
 import com.bondy.bondybranch.presentation.viewmodel.DashboardUiState
 import com.bondy.bondybranch.presentation.viewmodel.DashboardViewModel
@@ -63,8 +64,10 @@ fun DashboardScreen(
     onScanClick: () -> Unit,
     onHistoryClick: () -> Unit,
     onCardSelected: (String) -> Unit,
-    viewModel: DashboardViewModel = hiltViewModel()
+    viewModel: DashboardViewModel = hiltViewModel(),
+    floatingWindowViewModel: FloatingWindowViewModel = hiltViewModel()
 ) {
+
     val uiState = viewModel.uiState
     val context = LocalContext.current
     val appContext = context.applicationContext
@@ -77,6 +80,7 @@ fun DashboardScreen(
 
     val floatingWindow = rememberFloatingWindow(appContext) {
         FloatingWindowContent(
+            model = floatingWindowViewModel,
             stats = uiState.dailyStats,
             isLoading = uiState.isStatsLoading
         )
@@ -344,13 +348,18 @@ private fun TransactionItem(transaction: Transaction) {
     }
 }
 @Composable
-fun StatsCard1(stats: BranchDailyStats?, isLoading: Boolean, modifier: Modifier = Modifier,call: () -> Unit) {
+fun StatsCard1(
+    stats: BranchDailyStats?,
+    isLoading: Boolean,
+    cardNumber: String,
+    onCardNumberChange: (String) -> Unit,
+    onSend: () -> Unit,
+    modifier: Modifier = Modifier
+) {
     Card(
-        modifier = Modifier.dragFloatingWindow(),
+        modifier = modifier.dragFloatingWindow(),
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer),
-        onClick = {
-            call
-        }
+        onClick = { }
     ) {
         Column(modifier = Modifier.padding(20.dp)) {
             Text(
@@ -372,6 +381,22 @@ fun StatsCard1(stats: BranchDailyStats?, isLoading: Boolean, modifier: Modifier 
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onPrimaryContainer
                 )
+            }
+            Spacer(modifier = Modifier.height(12.dp))
+            OutlinedTextField(
+                value = cardNumber,
+                onValueChange = onCardNumberChange,
+                modifier = Modifier.fillMaxWidth(),
+                label = { Text("Card number") },
+                singleLine = true
+            )
+            Spacer(modifier = Modifier.height(12.dp))
+            Button(
+                onClick = onSend,
+                enabled = cardNumber.isNotBlank() && !isLoading,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text("Send")
             }
         }
     }
