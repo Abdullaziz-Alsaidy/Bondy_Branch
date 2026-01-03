@@ -217,9 +217,12 @@ private fun parseServerMessage(throwable: Throwable): String {
     return throwable.message.orEmpty().ifBlank { "Request failed." }
 }
 
-private fun <T, R> ApiResponse<T>.toNetworkResult(mapper: (T) -> R): NetworkResult<R> =
-    if (status in 200..299) {
+private fun <T, R> ApiResponse<T>.toNetworkResult(mapper: (T) -> R): NetworkResult<R> {
+    val statusCode = status.toIntOrNull()
+    val isSuccess = status.equals("success", ignoreCase = true) || (statusCode in 200..299)
+    return if (isSuccess) {
         NetworkResult.Success(mapper(payload))
     } else {
         NetworkResult.Error(message.ifBlank { "Request failed." })
     }
+}

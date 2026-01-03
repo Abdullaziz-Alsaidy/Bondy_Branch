@@ -110,7 +110,6 @@ fun FloatingWindowContent(
                     } else {
                         Log.d("FloatingWindow", "Empty card number, ignoring send")
                     }
-                    isCollapsed = true
                     Log.d("FloatingWindow", "Clicked (Content)")
                 },
                 width = cardWidth,

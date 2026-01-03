@@ -73,7 +73,7 @@ data class LoginRequest(
 
 @Serializable
 data class ApiResponse<T>(
-    val status: Int,
+    val status: String,
     val message: String,
     val payload: T
 )
