@@ -9,6 +9,7 @@ import com.bondy.bondybranch.data.model.Transaction
 import com.bondy.bondybranch.data.model.TransactionSource
 import com.bondy.bondybranch.data.model.TransactionType
 import com.bondy.bondybranch.data.model.UserInfo
+import com.google.gson.annotations.SerializedName
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import retrofit2.Response
@@ -41,7 +42,7 @@ interface BondyApiService {
     @POST("processRedeem")
     suspend fun processRedeem(@Body request: RedeemRequest): ApiResponse<Transaction>
 
-    @POST("/api/transactions")
+    @POST("/api/transactions/")
     suspend fun createTransaction(
        // @Header("Authorization") token: String,
         @Body request: CreateTransactionRequest): ApiResponse<Transaction>
@@ -94,18 +95,34 @@ data class RedeemRequest(
 
 @Serializable
 data class CreateTransactionRequest(
-    @SerialName("transaction_type") val transactionType: TransactionType,
+    @SerialName("transaction_type")
+    @SerializedName("transaction_type")
+    val transactionType: TransactionType,
     val source: String,
-    @SerialName("integration_type") val integrationType: IntegrationType,
-    @SerialName("external_ref") val externalRef: String,
-    @SerialName("cups_count") val cupsCount: Int,
+    @SerialName("integration_type")
+    @SerializedName("integration_type")
+    val integrationType: IntegrationType,
+    @SerialName("external_ref")
+    @SerializedName("external_ref")
+    val externalRef: String,
+    @SerialName("cups_count")
+    @SerializedName("cups_count")
+    val cupsCount: Int,
     val items: List<TransactionItemRequest>,
-    @SerialName("amount_cents") val amountCents: Int,
+    @SerialName("amount_cents")
+    @SerializedName("amount_cents")
+    val amountCents: Int,
     val redeemed: Boolean,
     val processed: Boolean,
-    @SerialName("card_id") val cardId: Long,
-    @SerialName("brand_branch_id") val brandBranchId: Int = 1,
-    @SerialName("user_id") val userId: Int = 1
+    @SerialName("card_id")
+    @SerializedName("card_id")
+    val cardId: Long,
+    @SerialName("brand_branch_id")
+    @SerializedName("brand_branch_id")
+    val brandBranchId: Int = 1,
+    @SerialName("user_id")
+    @SerializedName("user_id")
+    val userId: Int = 1
 )
 /*
   {

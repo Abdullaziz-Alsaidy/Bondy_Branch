@@ -129,7 +129,7 @@ class BondyRepositoryImpl @Inject constructor(
 
                 val request = CreateTransactionRequest(
                     transactionType = input.transactionType,
-                    source = input.source,
+                    source = "Android App",
                     integrationType = input.integrationType,
                     externalRef = input.externalRef,
                     cupsCount = input.cupsCount,

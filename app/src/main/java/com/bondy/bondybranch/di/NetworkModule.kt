@@ -24,6 +24,8 @@ object NetworkModule {
 
     private const val BASE_URL = "https://bondy-production.up.railway.app/"
     private const val BASE_URL_TEST = "https://postman-echo.com/"
+    private const val LOCAL_HOST = "http://192.168.1.32:8000/"
+
 
 
 
@@ -46,7 +48,7 @@ object NetworkModule {
     @Singleton
     fun provideRetrofit(okHttpClient: OkHttpClient, gson: Gson): Retrofit =
         Retrofit.Builder()
-            .baseUrl(BASE_URL_TEST)
+            .baseUrl(LOCAL_HOST)
             .addConverterFactory(GsonConverterFactory.create(gson))
             .client(okHttpClient)
             .build()

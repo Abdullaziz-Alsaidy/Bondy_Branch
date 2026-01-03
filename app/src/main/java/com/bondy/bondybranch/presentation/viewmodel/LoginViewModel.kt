@@ -52,20 +52,21 @@ class LoginViewModel @Inject constructor(
         loginJob?.cancel()
         loginJob = viewModelScope.launch {
             loginUseCase.logIn(username, password).collectLatest { result ->
-              //  handleLoginSuccess(AuthSession("token", 1))
-                when (result) {
-
-                    is NetworkResult.Loading ->
-                        uiState = uiState.copy(isLoading = true, errorMessage = null)
-
-                    is NetworkResult.Success -> handleLoginSuccess(result.data)
-
-                    is NetworkResult.Error ->
-                        uiState = uiState.copy(
-                            isLoading = false,
-                            errorMessage = result.message.ifBlank { "Login failed. Please try again." }
-                        )
-                }
+                handleLoginSuccess(AuthSession("token", 1))
+//                when (result) {
+//
+//                    is NetworkResult.Loading ->
+//                        uiState = uiState.copy(isLoading = true, errorMessage = null)
+//
+//                    is NetworkResult.Success ->
+//                        handleLoginSuccess(result.data)
+//
+//                    is NetworkResult.Error ->
+//                        uiState = uiState.copy(
+//                            isLoading = false,
+//                            errorMessage = result.message.ifBlank { "Login failed. Please try again." }
+//                        )
+//                }
             }
 
 

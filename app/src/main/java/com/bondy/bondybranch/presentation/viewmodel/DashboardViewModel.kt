@@ -196,7 +196,7 @@ class DashboardViewModel @Inject constructor(
                     brandId = 10,
                     cardId = 200 + index,
                     transactionType = if (index % 2 == 0)
-                        TransactionType.SALE else TransactionType.REDEEM,
+                        TransactionType.EARN else TransactionType.REDEEM,
                     source = TransactionSource.POS,
                     cupsCount = (1..3).random(),
                     rewardsEarned = if (index % 2 == 0) 0 else 1,

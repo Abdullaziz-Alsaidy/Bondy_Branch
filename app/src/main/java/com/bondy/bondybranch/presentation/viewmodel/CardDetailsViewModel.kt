@@ -215,7 +215,7 @@ data class CardDetailsUiState(
 )
 
 data class TransactionFormState(
-    val transactionType: TransactionType = TransactionType.purchase,
+    val transactionType: TransactionType = TransactionType.REDEEM,
     val source: TransactionSource = TransactionSource.POS,
     val integrationType: IntegrationType = IntegrationType.INTERNAL,
     val externalRef: String = "",
