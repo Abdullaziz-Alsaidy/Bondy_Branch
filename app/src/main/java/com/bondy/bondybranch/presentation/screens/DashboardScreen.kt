@@ -1,6 +1,7 @@
 package com.bondy.bondybranch.presentation.screens
 
 import android.provider.Settings
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -14,10 +15,12 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.History
 import androidx.compose.material.icons.filled.PictureInPictureAlt
 import androidx.compose.material.icons.filled.QrCodeScanner
+import androidx.compose.material.icons.filled.Remove
 import androidx.compose.material3.AssistChip
 import androidx.compose.material3.AssistChipDefaults
 import androidx.compose.material3.Button
@@ -41,10 +44,13 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.foundation.shape.CircleShape
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.bondy.bondybranch.data.model.BranchDailyStats
@@ -353,51 +359,84 @@ fun StatsCard1(
     isLoading: Boolean,
     cardNumber: String,
     onCardNumberChange: (String) -> Unit,
+    onCollapse: () -> Unit,
+    onResize: (Float, Float) -> Unit,
     onSend: () -> Unit,
+    width: androidx.compose.ui.unit.Dp,
+    height: androidx.compose.ui.unit.Dp,
     modifier: Modifier = Modifier
 ) {
     Card(
-        modifier = modifier.dragFloatingWindow(),
+        modifier = modifier
+            .size(width, height)
+            .dragFloatingWindow(),
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer),
         onClick = { }
     ) {
-        Column(modifier = Modifier.padding(20.dp)) {
-            Text(
-                text = "Today's performance",
-                style = MaterialTheme.typography.titleMedium,
-                color = MaterialTheme.colorScheme.onPrimaryContainer
-            )
-            Spacer(modifier = Modifier.height(16.dp))
-            if (isLoading) {
-                CircularProgressIndicator(modifier = Modifier.size(24.dp))
-            } else if (stats != null) {
-                Row(horizontalArrangement = Arrangement.spacedBy(24.dp)) {
-                    StatBlock(label = "Sales", value = stats.totalSales.toString())
-                    StatBlock(label = "Redemptions", value = stats.totalRedemptions.toString())
+        Box(modifier = Modifier.fillMaxSize()) {
+            Column(modifier = Modifier.padding(20.dp)) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = "Today's performance",
+                        style = MaterialTheme.typography.titleMedium,
+                        color = MaterialTheme.colorScheme.onPrimaryContainer
+
+                    )
+                    IconButton(onClick = onCollapse) {
+                        Icon(
+                            imageVector = Icons.Filled.Remove,
+                            contentDescription = "Collapse"
+                        )
+                    }
                 }
-            } else {
-                Text(
-                    text = "No stats available",
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onPrimaryContainer
+                Spacer(modifier = Modifier.height(16.dp))
+                if (isLoading) {
+                    CircularProgressIndicator(modifier = Modifier.size(24.dp))
+                } else if (stats != null) {
+
+                } else {
+                    Text(
+                        text = "No stats available",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onPrimaryContainer
+                    )
+                }
+                Spacer(modifier = Modifier.height(12.dp))
+                OutlinedTextField(
+                    value = cardNumber,
+                    onValueChange = onCardNumberChange,
+                    modifier = Modifier.fillMaxWidth(),
+                    label = { Text("Card number") },
+                    singleLine = true
                 )
+                Spacer(modifier = Modifier.height(12.dp))
+                Button(
+                    onClick = onSend,
+                    enabled = cardNumber.isNotBlank() && !isLoading,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text("Send")
+                }
             }
-            Spacer(modifier = Modifier.height(12.dp))
-            OutlinedTextField(
-                value = cardNumber,
-                onValueChange = onCardNumberChange,
-                modifier = Modifier.fillMaxWidth(),
-                label = { Text("Card number") },
-                singleLine = true
+            Box(
+                modifier = Modifier
+                    .size(24.dp)
+                    .align(Alignment.BottomEnd)
+                    .background(
+                        color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.15f),
+                        shape = CircleShape
+                    )
+                    .pointerInput(Unit) {
+                        detectDragGestures { change, dragAmount ->
+                            change.consume()
+                            onResize(dragAmount.x, dragAmount.y)
+                        }
+                    }
             )
-            Spacer(modifier = Modifier.height(12.dp))
-            Button(
-                onClick = onSend,
-                enabled = cardNumber.isNotBlank() && !isLoading,
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Text("Send")
-            }
         }
     }
 }

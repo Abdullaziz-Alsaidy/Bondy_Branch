@@ -9,6 +9,7 @@ import com.bondy.bondybranch.data.model.Transaction
 import com.bondy.bondybranch.data.model.TransactionSource
 import com.bondy.bondybranch.data.model.TransactionType
 import com.bondy.bondybranch.data.model.UserInfo
+import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import retrofit2.Response
 import retrofit2.http.Body
@@ -40,9 +41,9 @@ interface BondyApiService {
     @POST("processRedeem")
     suspend fun processRedeem(@Body request: RedeemRequest): ApiResponse<Transaction>
 
-    @POST("transactions")
+    @POST("/api/transactions")
     suspend fun createTransaction(
-        @Header("Authorization") token: String,
+       // @Header("Authorization") token: String,
         @Body request: CreateTransactionRequest): ApiResponse<Transaction>
 
     @GET("brand")
@@ -93,17 +94,36 @@ data class RedeemRequest(
 
 @Serializable
 data class CreateTransactionRequest(
-    val transactionType: TransactionType,
-    val source: TransactionSource,
-    val integrationType: IntegrationType,
-    val externalRef: String,
-    val cupsCount: Int,
+    @SerialName("transaction_type") val transactionType: TransactionType,
+    val source: String,
+    @SerialName("integration_type") val integrationType: IntegrationType,
+    @SerialName("external_ref") val externalRef: String,
+    @SerialName("cups_count") val cupsCount: Int,
     val items: List<TransactionItemRequest>,
-    val amountCents: Int,
+    @SerialName("amount_cents") val amountCents: Int,
     val redeemed: Boolean,
     val processed: Boolean,
-    val cardId: Long
+    @SerialName("card_id") val cardId: Long,
+    @SerialName("brand_branch_id") val brandBranchId: Int = 1,
+    @SerialName("user_id") val userId: Int = 1
 )
+/*
+  {
+    "transaction_type": "earn",
+    "source": "api",
+    "integration_type": "api",
+    "external_ref": "TXN-0009",
+    "cups_count": 3,
+    "amount_cents": 1200,
+    "card_id": 9,
+    "brand_branch_id": 1,
+    "user_id": 1,
+    "items": {"note": "demo"},
+    "redeemed": false,
+    "processed": true
+  }
+
+ */
 
 @Serializable
 data class TransactionItemRequest(
