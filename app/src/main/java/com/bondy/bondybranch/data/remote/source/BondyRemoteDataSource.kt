@@ -34,8 +34,7 @@ class BondyRemoteDataSource @Inject constructor(
         apiService.processRedeem(request)
 
     suspend fun createTransaction(request: CreateTransactionRequest, token: String) =
-        //apiService.createTransaction(token = token,request = request)
-        apiService.createTransaction(request = request)
+        apiService.createTransaction(token = token, request = request)
 
     suspend fun getBrand() =
         apiService.getBrand()

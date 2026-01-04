@@ -41,8 +41,9 @@ interface BondyApiService {
 
     @POST("/api/transactions/")
     suspend fun createTransaction(
-       // @Header("Authorization") token: String,
-        @Body request: CreateTransactionRequest): ApiResponse<Transaction>
+        @Header("Authorization") token: String,
+        @Body request: CreateTransactionRequest
+    ): ApiResponse<Transaction>
 
     @GET("brand")
     suspend fun getBrand(): ApiResponse<Brand>
@@ -120,9 +121,6 @@ data class CreateTransactionRequest(
     @SerialName("brand_branch_id")
     @SerializedName("brand_branch_id")
     val brandBranchId: Int = 1,
-    @SerialName("user_id")
-    @SerializedName("user_id")
-    val userId: Int = 1
 )
 /*
   {
