@@ -37,8 +37,7 @@ class BondyRepositoryImpl @Inject constructor(
     @NetworkModule.IoDispatcher private val ioDispatcher: CoroutineDispatcher
 ) : BondyRepository {
 
-    //val token = prefs.getAuthToken().orEmpty()
-    val token = "Bearer ${prefs.getAuthToken()}".orEmpty()
+    private fun bearerToken(): String = "Bearer ${prefs.getAuthToken()}".orEmpty()
     override fun send(data: Map<String, String>): Flow<NetworkResult<EchoResponse>> =
         flow {
             emit(NetworkResult.Loading)
@@ -68,8 +67,11 @@ class BondyRepositoryImpl @Inject constructor(
             try {
                 val response = remoteDataSource.login(LoginRequest(username, password))
                 emit(response.toNetworkResult { payload ->
-                    // Backend currently omits user id; keep placeholder until provided.
-                    AuthSession(payload.payload.toString(),1)
+                    AuthSession(
+                        accessToken = payload.access,
+                        refreshToken = payload.refresh,
+                        role = payload.role
+                    )
                 })
             } catch (throwable: Throwable) {
                 emit(NetworkResult.Error(parseServerMessage(throwable), throwable))
@@ -147,7 +149,7 @@ class BondyRepositoryImpl @Inject constructor(
                 )
                 val response = remoteDataSource.createTransaction(
                     request = request,
-                    token = token
+                    token = bearerToken()
                 )
                 emit(response.toNetworkResult { it })
             } catch (throwable: Throwable) {
@@ -192,7 +194,7 @@ class BondyRepositoryImpl @Inject constructor(
         flow {
             emit(NetworkResult.Loading)
             try {
-                val response = remoteDataSource.getTransactions(token = token)
+                val response = remoteDataSource.getTransactions(token = bearerToken())
                 emit(response.toNetworkResult { it })
             } catch (throwable: Throwable) {
                 emit(NetworkResult.Error(parseServerMessage(throwable), throwable))

@@ -78,9 +78,9 @@ data class ApiResponse<T>(
 
 @Serializable
 data class LoginPayload(
-    val status: String,
-    val message: String,
-    val payload: String
+    val access: String,
+    val refresh: String,
+    val role: String
 )
 @Serializable
 data class SaleRequest(

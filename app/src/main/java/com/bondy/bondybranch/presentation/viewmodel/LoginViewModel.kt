@@ -41,13 +41,13 @@ class LoginViewModel @Inject constructor(
     }
 
     fun submitCredentials() {
-        val username = "abdullaziz"
-        val password = "0101"
+        val username = uiState.username.trim()
+        val password = uiState.password
 
-//        if (username.isBlank() || password.isBlank()) {
-//            uiState = uiState.copy(errorMessage = "Please provide both email and password.")
-//            return
-//        }
+        if (username.isBlank() || password.isBlank()) {
+            uiState = uiState.copy(errorMessage = "Please provide both email and password.")
+            return
+        }
 
         loginJob?.cancel()
         loginJob = viewModelScope.launch {
@@ -76,7 +76,7 @@ class LoginViewModel @Inject constructor(
     }
 
     private suspend fun handleLoginSuccess(session: AuthSession) {
-        prefs.saveAuthToken(session.token)
+        prefs.saveAuthToken(session.accessToken)
         uiState = uiState.copy(isLoading = false, errorMessage = null)
         _events.emit(LoginEvent.Success(session))
 

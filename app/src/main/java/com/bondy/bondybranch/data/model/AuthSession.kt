@@ -4,6 +4,7 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class AuthSession(
-    val token: String,
-    val userId: Int
+    val accessToken: String,
+    val refreshToken: String,
+    val role: String
 )
