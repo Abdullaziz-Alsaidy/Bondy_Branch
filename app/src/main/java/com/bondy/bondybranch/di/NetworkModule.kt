@@ -1,8 +1,11 @@
 package com.bondy.bondybranch.di
 
 import com.bondy.bondybranch.data.remote.api.BondyApiService
+import com.bondy.bondybranch.data.remote.api.AuthRefreshApiService
+import com.bondy.bondybranch.data.remote.auth.TokenAuthenticator
 import com.bondy.bondybranch.data.repository.BondyRepositoryImpl
 import com.bondy.bondybranch.domain.repository.BondyRepository
+import com.bondy.bondybranch.utility.PreferenceStorage
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import dagger.Module
@@ -35,14 +38,45 @@ object NetworkModule {
 
     @Provides
     @Singleton
-    fun provideOkHttpClient(): OkHttpClient {
-        val logging = HttpLoggingInterceptor().apply {
+    fun provideLoggingInterceptor(): HttpLoggingInterceptor =
+        HttpLoggingInterceptor().apply {
             level = HttpLoggingInterceptor.Level.BODY
         }
-        return OkHttpClient.Builder()
-            .addInterceptor(logging)
+
+    @Provides
+    @Singleton
+    fun provideAuthRefreshApiService(
+        gson: Gson,
+        logging: HttpLoggingInterceptor
+    ): AuthRefreshApiService =
+        Retrofit.Builder()
+            .baseUrl(LOCAL_HOST)
+            .addConverterFactory(GsonConverterFactory.create(gson))
+            .client(
+                OkHttpClient.Builder()
+                    .addInterceptor(logging)
+                    .build()
+            )
             .build()
-    }
+            .create(AuthRefreshApiService::class.java)
+
+    @Provides
+    @Singleton
+    fun provideTokenAuthenticator(
+        prefs: PreferenceStorage,
+        refreshApiService: AuthRefreshApiService
+    ): TokenAuthenticator = TokenAuthenticator(prefs, refreshApiService)
+
+    @Provides
+    @Singleton
+    fun provideOkHttpClient(
+        logging: HttpLoggingInterceptor,
+        authenticator: TokenAuthenticator
+    ): OkHttpClient =
+        OkHttpClient.Builder()
+            .addInterceptor(logging)
+            .authenticator(authenticator)
+            .build()
 
     @Provides
     @Singleton

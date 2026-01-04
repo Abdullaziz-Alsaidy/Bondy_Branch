@@ -77,6 +77,8 @@ class LoginViewModel @Inject constructor(
 
     private suspend fun handleLoginSuccess(session: AuthSession) {
         prefs.saveAuthToken(session.accessToken)
+        prefs.saveRefreshToken(session.refreshToken)
+        prefs.saveUserRole(session.role)
         uiState = uiState.copy(isLoading = false, errorMessage = null)
         _events.emit(LoginEvent.Success(session))
 
