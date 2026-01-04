@@ -16,8 +16,7 @@ class BondyRemoteDataSource @Inject constructor(
         apiService.send(data)
     suspend fun login(request: LoginRequest) =
         apiService.login(
-            email = request.username,
-            password = request.password
+            request = request
         )
 
     suspend fun getUserInfo(token: String) =

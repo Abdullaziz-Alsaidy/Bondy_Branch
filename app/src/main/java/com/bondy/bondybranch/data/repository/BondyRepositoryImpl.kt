@@ -69,7 +69,7 @@ class BondyRepositoryImpl @Inject constructor(
                 val response = remoteDataSource.login(LoginRequest(username, password))
                 emit(response.toNetworkResult { payload ->
                     // Backend currently omits user id; keep placeholder until provided.
-                    AuthSession(payload.access_token, userId = 1)
+                    AuthSession(payload.payload.toString(),1)
                 })
             } catch (throwable: Throwable) {
                 emit(NetworkResult.Error(parseServerMessage(throwable), throwable))

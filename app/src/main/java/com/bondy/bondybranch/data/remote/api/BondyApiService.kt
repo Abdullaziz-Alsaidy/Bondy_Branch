@@ -21,12 +21,9 @@ import retrofit2.http.Path
 import retrofit2.http.Query
 
 interface BondyApiService {
-    @POST("auth/login")
+    @POST("api/auth/login/")
     suspend fun login(
-        @Query("email") email: String,
-        @Query("password") password: String
-    ): ApiResponse<LoginPayload>
-
+        @Body request: LoginRequest): ApiResponse<LoginPayload>
 
     @GET("auth/profile")
     suspend fun getUserInfo(
@@ -78,9 +75,12 @@ data class ApiResponse<T>(
     val payload: T
 )
 
+
 @Serializable
 data class LoginPayload(
-    val access_token: String
+    val status: String,
+    val message: String,
+    val payload: String
 )
 @Serializable
 data class SaleRequest(
